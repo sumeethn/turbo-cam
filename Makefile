@@ -41,7 +41,7 @@ CFLAGS+= `pkg-config --cflags $(PKGS)`
 
 LIBS:= `pkg-config --libs $(PKGS)`
 
-LIBS+= -L$(LIB_INSTALL_DIR) -lnvdsgst_meta -lnvds_meta \
+LIBS+= -L$(LIB_INSTALL_DIR) -lnvdsgst_meta -lnvds_meta -lnvdsgst_helper -lm\
        -Wl,-rpath,$(LIB_INSTALL_DIR)
 
 all: $(APP)
