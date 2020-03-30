@@ -1,7 +1,6 @@
 
 # Turbo cam processing
 
- ```
 * [Deepstream SDK 4.0.2](https://developer.nvidia.com/deepstream-sdk)
  You can run deepstream-test1 sample to check Deepstream installation is successful or not.
 
@@ -36,13 +35,12 @@ This repository depends on the TensorRT OSS plugins. Specifically, the FasterRCN
  * $ make
 
 
-
-
 The MaskRCNN configuration file is `pgie_mrcnn_uff_config.txt`.
 
 ## Run the sample app
 Make sure "deepstream-test1" sample can run before running this app.
 Once we have built the app and finished the configuration, we can run the app, using the command mentioned below.
+
 ```bash
 ./deepstream-custom <config_file> <H264_file>
 ```
