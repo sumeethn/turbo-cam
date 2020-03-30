@@ -42,5 +42,8 @@ Make sure "deepstream-test1" sample can run before running this app.
 Once we have built the app and finished the configuration, we can run the app, using the command mentioned below.
 
 ```bash
-./deepstream-custom <config_file> <H264_file>
+$ ./deepstream-test3-app <uri1> [uri2] ... [uriN]
+e.g.
+  $ ./deepstream-test3-app file:///home/ubuntu/video1.mp4 file:///home/ubuntu/video2.mp4
+  $ ./deepstream-test3-app rtsp://127.0.0.1/video1 rtsp://127.0.0.1/video2
 ```
