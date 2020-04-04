@@ -149,7 +149,15 @@ tiler_src_pad_buffer_probe (GstPad * pad, GstPadProbeInfo * info,
     guint person_count = 0;
     NvDsMetaList * l_frame = NULL;
     NvDsMetaList * l_obj = NULL;
+    gchar *msg = NULL; 
+    
     //NvDsDisplayMeta *display_meta = NULL;
+    
+    /* FPS output */
+    g_object_get(G_OBJECT (u_data), "last-message", &msg, NULL);
+    if (msg != NULL) {
+    	g_print("FPS info: %s \n", msg);
+    }
 
     NvDsBatchMeta *batch_meta = gst_buffer_get_nvds_batch_meta (buf);
 
@@ -285,7 +293,7 @@ int
 main (int argc, char *argv[]) {
     GMainLoop *loop = NULL;
     GstElement *pipeline = NULL, *source = NULL, *h264parser = NULL,
-               *decoder = NULL, *streammux = NULL, *sink = NULL,
+               *decoder = NULL, *streammux = NULL, *sink = NULL, *nvsink = NULL, 
                *pgie = NULL, *nvvidconv = NULL, *nvosd = NULL, *tiler = NULL;
 #ifdef PLATFORM_TEGRA
     GstElement *transform = NULL;
@@ -378,7 +386,11 @@ main (int argc, char *argv[]) {
 	transform = gst_element_factory_make ("nvegltransform", "nvegl-transform");
 #endif
 	
-	sink = gst_element_factory_make ("nveglglessink", "nvvideo-renderer");
+	//sink = gst_element_factory_make ("nveglglessink", "nvvideo-renderer");
+	nvsink = gst_element_factory_make ("fakesink", "nvvideo-renderer");
+	sink = gst_element_factory_make ("fpsdisplaysink", "fps-display");
+	g_object_set (G_OBJECT (sink), "text-overlay", FALSE, "video-sink", nvsink, "sync", FALSE, NULL);
+	
 	g_object_set (sink, "sync", FALSE, "max-lateness", -1,
       "async", FALSE, "qos", TRUE, NULL);
 
@@ -426,10 +438,10 @@ main (int argc, char *argv[]) {
   	/* Set up the pipeline */
   	/* we add all elements into the pipeline */
 #ifdef PLATFORM_TEGRA
- 	gst_bin_add_many (GST_BIN (pipeline), pgie, tiler, nvvidconv, nvosd, transform, sink, NULL);
+ 	gst_bin_add_many (GST_BIN (pipeline), pgie, tiler, nvvidconv, nvosd, sink, NULL);
   	/* we link the elements together
    	* nvstreammux -> nvinfer -> nvtiler -> nvvidconv -> nvosd -> video-renderer */
-  	if (!gst_element_link_many (streammux, pgie, tiler, nvvidconv, nvosd, transform, sink, NULL)) {
+  	if (!gst_element_link_many (streammux, pgie, tiler, nvvidconv, nvosd, sink, NULL)) {
     	g_printerr ("Elements could not be linked. Exiting.\n");
     	return -1;
   	}
@@ -451,7 +463,7 @@ main (int argc, char *argv[]) {
  	   g_print ("Unable to get src pad\n");
   	else
   	  gst_pad_add_probe (tiler_src_pad, GST_PAD_PROBE_TYPE_BUFFER,
-      	  tiler_src_pad_buffer_probe, NULL, NULL);
+      	  tiler_src_pad_buffer_probe, (gpointer)sink, NULL);
 
  	 /* Set the pipeline to "playing" state */
   	g_print ("Now playing:");
